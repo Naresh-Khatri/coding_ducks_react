@@ -33,6 +33,8 @@ export default function CodeEditor({ output, theme }) {
           highlightSpecialChars: false,
           styleActiveLine: false,
         }}
+        readOnly={true}
+        editable={false}
         value={output}
         height="90vh"
         theme={supportedThemes[theme]}
