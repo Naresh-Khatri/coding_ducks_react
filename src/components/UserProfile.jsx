@@ -20,10 +20,14 @@ import {
 } from "@chakra-ui/react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEye,
+  faEyeSlash,
+  faSignOut,
+} from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect } from "react";
 
-function UserProfile({ userInfo }) {
+function UserProfile({ userInfo, onLogout }) {
   const { fullname, username, email, photo_url } = userInfo;
 
   const [maskedEmail, setMaskedEmail] = useState("");
@@ -80,7 +84,18 @@ function UserProfile({ userInfo }) {
             />
           </Center>
         </ModalHeader>
-        <ModalCloseButton />
+        {/* <ModalCloseButton/> */}
+        <IconButton
+          position="absolute"
+          top={2}
+          right={2}
+          bg="transparent"
+          color="white"
+          icon={<FontAwesomeIcon icon={faSignOut} />}
+          onClick={() => {
+            onLogout();
+          }}
+        />
         <ModalBody mt={70}>
           <HStack spacing={4}>
             <VStack spacing={4} w="100%">

@@ -41,7 +41,7 @@ import {
   faGithub,
 } from "@fortawesome/free-brands-svg-icons";
 
-import { signInWithGoogle, auth } from "../firebase.js";
+import { signInWithGoogle, auth, logout } from "../firebase.js";
 import { useAuthState } from "react-firebase-hooks/auth";
 import axios from "axios";
 import UserProfile from "./UserProfile.jsx";
@@ -138,6 +138,13 @@ function ProfileInfo() {
       console.log(error);
     }
   };
+  const onLogout = () => {
+    logout();
+    setDbUser({});
+    setUserPresentInDb(false);
+    setUserInfo({});
+  }
+    
   const checkUsernameValidity = async (username) => {
     setUsername(username);
 
@@ -173,12 +180,12 @@ function ProfileInfo() {
         closeOnEsc={!isRegistering}
         onClose={onClose}
         size="lg"
-        isOpen={isOpen}
+        isOpen={true}
         motionPreset="slideInBottom"
       >
         <ModalOverlay backdropFilter="blur(2px)" />
         {userPresentInDb ? (
-          <UserProfile userInfo={dbUser} />
+          <UserProfile userInfo={dbUser} onLogout={onLogout}/>
         ) : (
           <ModalContent>
             <ModalHeader>Profile Info</ModalHeader>
