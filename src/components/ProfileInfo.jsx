@@ -58,7 +58,6 @@ function ProfileInfo() {
   const [isusernameValid, setIsusernameValid] = useState(true);
 
   const [userPresentInDb, setUserPresentInDb] = useState(false);
-  const [userPresentInFirebase, setUserPresentInFirebase] = useState(false);
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -78,12 +77,10 @@ function ProfileInfo() {
     const checkUser = async () => {
       //check if user is logged in
       if (user) {
-        setUserPresentInFirebase(true);
         //check if user exists in db
         const { data: fetchedUser } = await axios.get(
           // `http://localhost:3333/users/${user.uid}`
-          `https://coding_ducks.panipuri.tech/users/${user.uid}`,
-
+          `https://coding_ducks.panipuri.tech/users/${user.uid}`
         );
         console.log(fetchedUser[0]);
         if (fetchedUser[0]) {
@@ -185,7 +182,7 @@ function ProfileInfo() {
         ) : (
           <ModalContent>
             <ModalHeader>Profile Info</ModalHeader>
-            {!userPresentInFirebase ? (
+            {loading? (
               // show Skeleton until firebase user is loaded
               <Box padding="6" boxShadow="lg" bg="white">
                 <SkeletonCircle size="10" />
