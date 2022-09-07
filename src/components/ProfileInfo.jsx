@@ -180,7 +180,7 @@ function ProfileInfo() {
         closeOnEsc={!isRegistering}
         onClose={onClose}
         size="lg"
-        isOpen={true}
+        isOpen={isOpen}
         motionPreset="slideInBottom"
       >
         <ModalOverlay backdropFilter="blur(2px)" />
