@@ -81,7 +81,9 @@ function ProfileInfo() {
         setUserPresentInFirebase(true);
         //check if user exists in db
         const { data: fetchedUser } = await axios.get(
-          `http://localhost:3333/users/${user.uid}`
+          // `http://localhost:3333/users/${user.uid}`
+          `https://coding_ducks.panipuri.tech/users/${user.uid}`,
+
         );
         console.log(fetchedUser[0]);
         if (fetchedUser[0]) {
@@ -146,7 +148,8 @@ function ProfileInfo() {
     setDebounce(
       setTimeout(async () => {
         const { data } = await axios.post(
-          `http://localhost:3333/users/checkUsername/`,
+          // `http://localhost:3333/users/checkUsername/`,
+          `https://coding_ducks.panipuri.tech/users/checkUsername/`,
           { username }
         );
         if (!data.available)
