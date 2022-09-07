@@ -113,7 +113,10 @@ function ProfileInfo() {
   const saveUser = async () => {
     setIsLoading(true);
     try {
-      const newUser = await axios.post(`http://localhost:3333/users/v2`, {
+      const newUser = await axios.post(
+        // `http://localhost:3333/users/v2`
+        `https://coding_ducks.panipuri.tech/users/v2`
+      , {
         fullname: name,
         email: email,
         username: username,
