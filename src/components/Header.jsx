@@ -31,6 +31,7 @@ import { faPython } from "@fortawesome/free-brands-svg-icons";
 import { AddIcon, HamburgerIcon } from "@chakra-ui/icons";
 
 import File from "./drawer/File";
+import ProfileInfo from './ProfileInfo';
 
 export default function Header() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -127,9 +128,7 @@ export default function Header() {
             </Box>
             <Spacer />
             <Box>
-              <Button bg="purple.500" onClick={showInProgress}>
-                <FontAwesomeIcon icon={faUser} />
-              </Button>
+              <ProfileInfo />
             </Box>
           </Flex>
         </Box>
