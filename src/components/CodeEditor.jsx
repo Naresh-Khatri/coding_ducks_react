@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CodeMirror from "@uiw/react-codemirror";
+import { keymap } from "@codemirror/view";
 
 import { dracula } from "@uiw/codemirror-theme-dracula";
 import { atomone } from "@uiw/codemirror-theme-atomone";
@@ -16,7 +17,7 @@ import { java } from "@codemirror/lang-java";
 
 import "./CodeEditor.css";
 
-export default function CodeEditor({ code, setCode, lang, theme }) {
+export default function CodeEditor({ code, setCode, lang, theme, runCode }) {
   const supportedLangs = {
     python: python(),
     js: javascript(),
@@ -36,15 +37,31 @@ export default function CodeEditor({ code, setCode, lang, theme }) {
     xcodeDark: xcodeDark,
     xcodeLight: xcodeLight,
   };
+  const save = (e) => {
+    console.log("save", e);
+  };
   return (
     <>
       <CodeMirror
         autoFocus
         value={code}
         height="90vh"
+        basicSetup={{ defaultKeymap: false }}
         theme={supportedThemes[theme]}
         // extensions={[loadLanguage('cpp')]}
-        extensions={[supportedLangs[lang]]}
+        extensions={[
+          keymap.of([
+            {
+              key: "Ctrl-Enter",
+              preventDefault: true,
+              run: () => {
+                runCode();
+                return true;
+              },
+            },
+          ]),
+          supportedLangs[lang],
+        ]}
         onChange={(value) => {
           setCode(value);
         }}
