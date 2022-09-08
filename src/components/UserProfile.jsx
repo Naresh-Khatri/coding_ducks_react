@@ -25,19 +25,22 @@ import {
   faEyeSlash,
   faSignOut,
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
+import {UserContext} from '../contexts/UserContext';
 
-function UserProfile({ userInfo, onLogout }) {
-  const { fullname, username, email, photo_url } = userInfo;
+function UserProfile() {
+  const { dbUser, setUser } = useContext(UserContext);
+  const { fullname, username, email, photo_url } = dbUser;
 
   const [maskedEmail, setMaskedEmail] = useState("");
   const [isEmailMasked, setIsEmailMasked] = useState(true);
 
   useEffect(() => {
+    console.log(dbUser);
     const emailParts = email.split("@");
     const maskedEmail = `${emailParts[0].slice(0, 2)}...@${emailParts[1]}`;
     setMaskedEmail(maskedEmail);
-  }, [email]);
+  }, []);
 
   return (
     <div>
@@ -49,6 +52,7 @@ function UserProfile({ userInfo, onLogout }) {
               "linear(to-t, blue.200, teal.500)",
               "linear(to-b, orange.100, purple.400)",
             ]}
+            noOfLines={1}
             bgClip="text"
             fontSize="6xl"
             fontWeight="extrabold"
