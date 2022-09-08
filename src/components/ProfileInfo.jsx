@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-
 import {
   Modal,
   ModalFooter,
@@ -41,29 +40,37 @@ import {
   faGithub,
 } from "@fortawesome/free-brands-svg-icons";
 
-import { signInWithGoogle, auth, logout } from "../firebase.js";
-import { useAuthState } from "react-firebase-hooks/auth";
 import axios from "axios";
 import UserProfile from "./UserProfile.jsx";
+
+import { UserContext } from "../contexts/UserContext";
+
+import { usersRoute, checkUsernameRoute } from "../apiRoutes";
 
 function ProfileInfo() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isRegistering, setIsRegistering] = useState(false);
 
-  const [user, loading, error] = useAuthState(auth);
-  const [userInfo, setUserInfo] = useState({});
-  const [dbUser, setDbUser] = useState({});
   const [debounce, setDebounce] = useState(null);
 
   const [isusernameValid, setIsusernameValid] = useState(true);
-
-  const [userPresentInDb, setUserPresentInDb] = useState(false);
-
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
 
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const {
+    user,
+    loading,
+    error,
+    logout,
+    signInWithGoogle,
+    dbUser,
+    setDbUser,
+    userPresentInDb,
+    setUserPresentInDb,
+  } = React.useContext(UserContext);
 
   const handleSignIn = async (provider) => {
     const user = await signInWithGoogle();
@@ -79,8 +86,7 @@ function ProfileInfo() {
       if (user) {
         //check if user exists in db
         const { data: fetchedUser } = await axios.get(
-          // `http://localhost:3333/users/${user.uid}`
-          `https://coding_ducks.panipuri.tech/users/${user.uid}`
+          `${usersRoute}/${user.uid}`
         );
         console.log(fetchedUser[0]);
         if (fetchedUser[0]) {
@@ -89,7 +95,6 @@ function ProfileInfo() {
         }
         //does not exist
         if (fetchedUser.length === 0) {
-          setUserInfo(user);
           setEmail(user.email);
           setUsername(user.email.split("@")[0]);
           setName(user.displayName);
@@ -113,10 +118,7 @@ function ProfileInfo() {
   const saveUser = async () => {
     setIsLoading(true);
     try {
-      const newUser = await axios.post(
-        // `http://localhost:3333/users/v2`
-        `https://coding_ducks.panipuri.tech/users/v2`
-      , {
+      const newUser = await axios.post(`${usersRoute}`, {
         fullname: name,
         email: email,
         username: username,
@@ -145,20 +147,17 @@ function ProfileInfo() {
     logout();
     setDbUser({});
     setUserPresentInDb(false);
-    setUserInfo({});
-  }
-    
+  };
+
   const checkUsernameValidity = async (username) => {
     setUsername(username);
 
     clearTimeout(debounce);
     setDebounce(
       setTimeout(async () => {
-        const { data } = await axios.post(
-          // `http://localhost:3333/users/checkUsername/`,
-          `https://coding_ducks.panipuri.tech/users/checkUsername/`,
-          { username }
-        );
+        const { data } = await axios.post(`${checkUsernameRoute}`, {
+          username,
+        });
         if (!data.available)
           toast({
             title: "Username not available",
@@ -188,11 +187,11 @@ function ProfileInfo() {
       >
         <ModalOverlay backdropFilter="blur(2px)" />
         {userPresentInDb ? (
-          <UserProfile userInfo={dbUser} onLogout={onLogout}/>
+          <UserProfile />
         ) : (
           <ModalContent>
             <ModalHeader>Profile Info</ModalHeader>
-            {loading? (
+            {loading ? (
               // show Skeleton until firebase user is loaded
               <Box padding="6" boxShadow="lg" bg="white">
                 <SkeletonCircle size="10" />
