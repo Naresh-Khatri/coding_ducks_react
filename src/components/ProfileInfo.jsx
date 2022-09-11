@@ -85,12 +85,11 @@ function ProfileInfo() {
       //check if user is logged in
       if (user) {
         //check if user exists in db
-        const { data: fetchedUser } = await axios.get(
-          `${usersRoute}/${user.uid}`
-        );
-        console.log(fetchedUser[0]);
-        if (fetchedUser[0]) {
-          setDbUser(fetchedUser[0]);
+        const { data: fetchedUser } = await axios.get(usersRoute + user.uid);
+        // console.log(fetchedUser);
+        if (fetchedUser) {
+          setDbUser(fetchedUser);
+          // console.log(dbUser)
           setUserPresentInDb(true);
         }
         //does not exist
