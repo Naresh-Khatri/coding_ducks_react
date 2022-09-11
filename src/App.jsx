@@ -34,12 +34,19 @@ function App() {
   const [output, setOutput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isAlertOpen,
+    onOpen,
+    onClose: onAlertClose,
+  } = useDisclosure();
 
   const [user, loading, error] = useAuthState(auth);
   const cancelRef = useRef();
   const [dbUser, setDbUser] = useState(null);
+  const [userFiles, setUserFiles] = useState([]);
   const [userPresentInDb, setUserPresentInDb] = useState(false);
+  const [currentFileID, setCurrentFileID] = useState(null);
+
 
   const [debounce, setDebounce] = useState(null);
   const toast = useToast();
@@ -50,25 +57,25 @@ function App() {
     if (code == `print('hi mom!')`) return;
 
     clearTimeout(debounce);
-    let toastTimeout = null
+    let toastTimeout = null;
     setDebounce(
       setTimeout(() => {
-        toast({
-          position: "top-right",
-          title: "Saving...",
-          duration: 1000,
-          isClosable: true,
-        });
-        toastTimeout = setTimeout(() => {
-          toast({
-            position: "top-right",
-            title: "Code saved!",
-            description: "local storage.",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        }, 1000);
+        // toast({
+        //   position: "top-right",
+        //   title: "Saving...",
+        //   duration: 1000,
+        //   isClosable: true,
+        // });
+        // toastTimeout = setTimeout(() => {
+        //   toast({
+        //     position: "top-right",
+        //     title: "Code saved!",
+        //     description: "local storage.",
+        //     status: "success",
+        //     duration: 3000,
+        //     isClosable: true,
+        //   });
+        // }, 1000);
         localStorage.setItem("code", code);
       }, 3000)
     );
@@ -105,6 +112,12 @@ function App() {
           setDbUser,
           userPresentInDb,
           setUserPresentInDb,
+          userFiles,
+          setUserFiles,
+          currentFileID,
+          setCurrentFileID,
+          code,
+          setCode
         }}
       >
         <Routes>
@@ -160,16 +173,19 @@ function App() {
                       )}
                       {!isLoading && (
                         <Box>
-                          <OutputViewer output={output} theme={theme} />
+                          <OutputViewer
+                            output={JSON.stringify(userFiles, null, 2)}
+                            theme={theme}
+                          />
                         </Box>
                       )}
                     </Box>
                   </Split>
                 </Box>
                 <AlertDialog
-                  isOpen={isOpen}
+                  isOpen={isAlertOpen}
                   leastDestructiveRef={cancelRef}
-                  onClose={onClose}
+                  onClose={onAlertClose}
                 >
                   <AlertDialogOverlay>
                     <AlertDialogContent>
@@ -182,10 +198,10 @@ function App() {
                       </AlertDialogBody>
 
                       <AlertDialogFooter>
-                        <Button ref={cancelRef} onClick={onClose} mr={4}>
+                        <Button ref={cancelRef} onClick={onAlertClose} mr={4}>
                           Cancel
                         </Button>
-                        <Button colorScheme="red" onClick={onClose}>
+                        <Button colorScheme="red" onClick={onAlertClose}>
                           Delete
                         </Button>
                       </AlertDialogFooter>
