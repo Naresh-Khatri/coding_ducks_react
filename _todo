@@ -1,7 +1,15 @@
-auth
+✅auth
 support for languages
-change themes
+✅change themes
 
-runing codes
+✅runing codes
 collab coding
+
+debounce save in localstorage
+
 save codes in profile
+limit number of files and number of lines
+
+fetch file contents
+save file changes in db
+rename file
