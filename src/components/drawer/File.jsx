@@ -1,16 +1,14 @@
 import {
-  Flex,
   Box,
-  Popover,
-  PopoverTrigger,
-  PopoverCloseButton,
-  PopoverHeader,
-  PopoverBody,
   Button,
-  PopoverContent,
-  PopoverArrow,
-  VStack,
-  Portal,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
+  Menu,
+  HStack,
+  Text,
+  useToast,
 } from "@chakra-ui/react";
 import {
   AlertDialog,
@@ -22,26 +20,99 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsisV, faCode } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEllipsisV,
+  faCode,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { faPython, faJs, faJava } from "@fortawesome/free-brands-svg-icons";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
-export default function File({ isActive, fileName, fileLang }) {
+import axios from "axios";
+import { filesRoute } from "../../apiRoutes";
+
+export default function File({ isActive, file, refreshUserFiles }) {
   const langIcons = {
-    python: faPython,
+    py: faPython,
     js: faJs,
     java: faJava,
     default: faCode,
   };
+  const langColors = {
+    py: "#305998",
+    js: "#e7cf0e",
+    java: "#B07219",
+    cpp: "#f9a825",
+    c: "#555555",
+    default: "#000000",
+  };
+
+  const { fileName, lang, id, content, userId } = file;
+  const cancelRef = useRef();
+  const [isDeletingFile, setIsDeletingFile] = useState(false);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // const { onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
+  // const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toast = useToast();
+
   const handleOptionsClicked = () => {
     console.log("Options clicked");
   };
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = useRef();
+  const handleDeleteClicked = () => {
+    onOpen();
+    console.log("Delete clicked");
+  };
+  const deleteFile = async () => {
+    try {
+      setIsDeletingFile(true);
+      const { data } = await axios.delete(`${filesRoute}${id}`);
+      console.log(data);
+      setIsDeletingFile(false);
+      refreshUserFiles();
+      toast({
+        title: "File deleted",
+        description: "File has been deleted",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    } catch (err) {
+      setIsDeletingFile(false);
+      toast({
+        title: "Error",
+        description: "Could not delete file",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      console.log("Error deleting file", err);
+    }
+  };
 
+  const handleDuplicateClicked = async () => {
+    console.log("Duplicate clicked");
+    try {
+      const payload = {
+        userId: userId,
+        fileName: fileName + " (copy)",
+        lang: lang,
+        content: content,
+      };
+      const newFile = await axios.post(filesRoute, payload);
+      console.log(newFile);
+      onMenuClose();
+      refreshUserFiles();
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <>
-      <Flex
+      <HStack
         w="100%"
         h="40px"
         px={2}
@@ -51,8 +122,8 @@ export default function File({ isActive, fileName, fileLang }) {
       >
         <Box alignSelf="center">
           <FontAwesomeIcon
-            icon={langIcons[fileLang] || faCode}
-            color={isActive ? "white" : "black"}
+            icon={langIcons[lang] || faCode}
+            color={isActive ? "white" : langColors[lang]}
             size="2x"
           />
         </Box>
@@ -64,40 +135,100 @@ export default function File({ isActive, fileName, fileLang }) {
         >
           {fileName}
         </Box>
-        <Box alignSelf="cen ter" w={4} h={4} onClick={handleOptionsClicked}>
-          <Popover>
-            <PopoverTrigger>
-              <Button size="md">
-                <FontAwesomeIcon
-                  icon={faEllipsisV}
-                  // color={isActive ? "white" : "black"}
-                />
-              </Button>
-            </PopoverTrigger>
-            <Portal>
-              <PopoverContent w="fit-content">
-                <PopoverArrow />
-                <PopoverCloseButton />
-                {/* <PopoverHeader>Confirmation</PopoverHeader> */}
-                <PopoverBody>
-                  {/* Are you sure you want to have that milkshake? */}
-                  <VStack>
-                    <Button size="sm" w="120px">
-                      Rename
-                    </Button>
-                    <Button size="sm" w="120px">
-                      Move
-                    </Button>
-                    <Button size="sm" w="120px" bg="red.300">
-                      Delete
-                    </Button>
-                  </VStack>
-                </PopoverBody>
-              </PopoverContent>
-            </Portal>
-          </Popover>
+        <Box alignSelf="cen ter">
+          <Menu>
+            {({ isOpen, onClose }) => (
+              <>
+                {/* <MenuButton isActive={isOpen} as={Button}>
+                 {isOpen ? "Close" : "Open"}
+               </MenuButton> */}
+                <MenuButton
+                  px={4}
+                  py={2}
+                  transition="all 0.2s"
+                  borderRadius="md"
+                  borderWidth="1px"
+                  _focus={{ boxShadow: "outline" }}
+                  w={10}
+                  h={10}
+                >
+                  <FontAwesomeIcon
+                    icon={faEllipsisV}
+                    // color={isActive ? "white" : "black"}
+                  />
+                </MenuButton>
+                <MenuList>
+                  <MenuItem disabled _hover={{ outline: "none" }}>
+                    <Text ml={5}>Rename</Text>
+                  </MenuItem>
+                  <MenuItem
+                    _hover={{ outline: "none" }}
+                    onClick={handleDuplicateClicked}
+                  >
+                    <Text ml={5}>Duplicate</Text>
+                  </MenuItem>
+                  <MenuDivider />
+                  <MenuItem
+                    bg="red.400"
+                    _hover={{ outline: "none" }}
+                    onClick={handleDeleteClicked}
+                    icon={<FontAwesomeIcon icon={faTrash} />}
+                    closeOnSelect={false}
+                  >
+                    <Text>Delete</Text>
+                  </MenuItem>
+                </MenuList>
+              </>
+            )}
+          </Menu>
+          {/* <Menu>
+            {({ isOpen, onClose }) => {
+              <>
+                <MenuButton isActive={isOpen} as={Button}>
+                  {isOpen ? "Close" : "Open"}
+                </MenuButton>
+                <MenuButton
+                  px={4}
+                  py={2}
+                  transition="all 0.2s"
+                  borderRadius="md"
+                  borderWidth="1px"
+                  _focus={{ boxShadow: "outline" }}
+                  w={10}
+                  h={10}
+                >
+                  <FontAwesomeIcon
+                    icon={faEllipsisV}
+                    // color={isActive ? "white" : "black"}
+                  />
+                </MenuButton>
+                <MenuList>
+                  <MenuItem disabled _hover={{ outline: "none" }}>
+                    <Text ml={5}>Rename</Text>
+                  </MenuItem>
+                  <MenuItem
+                    _hover={{ outline: "none" }}
+                    onClick={handleDuplicateClicked}
+                    closeOnSelect={false}
+                  >
+                    <Text ml={5}>Duplicate</Text>
+                  </MenuItem>
+                  <MenuDivider />
+                  <MenuItem
+                    bg="red.400"
+                    _hover={{ outline: "none" }}
+                    onClick={handleDeleteClicked}
+                    icon={<FontAwesomeIcon icon={faTrash} />}
+                    closeOnSelect={false}
+                  >
+                    <Text>Delete</Text>
+                  </MenuItem>
+                </MenuList>
+              </>;
+            }}
+          </Menu> */}
         </Box>
-      </Flex>
+      </HStack>
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
@@ -117,7 +248,12 @@ export default function File({ isActive, fileName, fileLang }) {
               <Button ref={cancelRef} onClick={onClose} mr={4}>
                 Cancel
               </Button>
-              <Button colorScheme="red" onClick={onOpen}>
+              <Button
+                colorScheme="red"
+                onClick={deleteFile}
+                isLoading={isDeletingFile}
+                loadingText="Deleting..."
+              >
                 Delete
               </Button>
             </AlertDialogFooter>
