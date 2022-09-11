@@ -26,17 +26,16 @@ import {
   faSignOut,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect, useContext } from "react";
-import {UserContext} from '../contexts/UserContext';
+import { UserContext } from "../contexts/UserContext";
 
 function UserProfile() {
   const { dbUser, setUser } = useContext(UserContext);
-  const { fullname, username, email, photo_url } = dbUser;
+  const { fullname, username, email, photoURL } = dbUser;
 
   const [maskedEmail, setMaskedEmail] = useState("");
   const [isEmailMasked, setIsEmailMasked] = useState(true);
 
   useEffect(() => {
-    console.log(dbUser);
     const emailParts = email.split("@");
     const maskedEmail = `${emailParts[0].slice(0, 2)}...@${emailParts[1]}`;
     setMaskedEmail(maskedEmail);
@@ -69,16 +68,10 @@ function UserProfile() {
               h={150}
               src="https://bit.ly/code-beast"
             /> */}
-            {/* <img
-              src={photo_url}
-              alt="profile"
-              width="150px"
-              height="150px"
-              /> */}
             <Image
               referrerPolicy="no-referrer"
               position="absolute"
-              src={photo_url}
+              src={photoURL}
               size="sm"
               bg="white"
               w={150}
