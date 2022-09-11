@@ -5,3 +5,4 @@ const domain = DEV
 
 export const usersRoute = `${domain}/users/`;
 export const checkUsernameRoute = `${domain}/users/checkUsername/`;
+export const filesRoute = `${domain}/files/`;
