@@ -52,10 +52,7 @@ const signInWithGoogle = async () => {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
     // console.log(user);
-    const { data: dbUser } = await axios.get(
-      "http://localhost:3333/users/" + user.uid
-    );
-    return dbUser[0] || null;
+   
     // const q = query(collection(db, "users"), where("uid", "==", user.uid));
     // const docs = await getDocs(q);
     // console.log(docs);
@@ -107,6 +104,7 @@ const sendPasswordReset = async (email) => {
   }
 };
 const logout = () => {
+  console.log('logging out')
   signOut(auth);
 };
 
