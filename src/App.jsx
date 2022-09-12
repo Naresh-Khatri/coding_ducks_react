@@ -27,6 +27,8 @@ import { UserContext } from "./contexts/UserContext";
 import { signInWithGoogle, auth, logout } from "./firebase.js";
 import { useAuthState } from "react-firebase-hooks/auth";
 
+import {filesRoute} from './apiRoutes'
+
 function App() {
   const [code, setCode] = useState("print('hi mom!')");
   const [lang, setLang] = useState("python");
@@ -47,7 +49,6 @@ function App() {
   const [userPresentInDb, setUserPresentInDb] = useState(false);
   const [currentFileID, setCurrentFileID] = useState(null);
 
-
   const [debounce, setDebounce] = useState(null);
   const toast = useToast();
   useEffect(() => {
@@ -60,22 +61,22 @@ function App() {
     let toastTimeout = null;
     setDebounce(
       setTimeout(() => {
-        // toast({
-        //   position: "top-right",
-        //   title: "Saving...",
-        //   duration: 1000,
-        //   isClosable: true,
-        // });
-        // toastTimeout = setTimeout(() => {
-        //   toast({
-        //     position: "top-right",
-        //     title: "Code saved!",
-        //     description: "local storage.",
-        //     status: "success",
-        //     duration: 3000,
-        //     isClosable: true,
-        //   });
-        // }, 1000);
+        toast({
+          position: "top-right",
+          title: "Saving...",
+          duration: 1000,
+          isClosable: true,
+        });
+        toastTimeout = setTimeout(() => {
+          toast({
+            position: "top-right",
+            title: "Code saved!",
+            description: "local storage.",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+        }, 1000);
         localStorage.setItem("code", code);
       }, 3000)
     );
@@ -99,6 +100,17 @@ function App() {
     }
   };
 
+  const saveUserFile = async () => {
+    const file = userFiles.find((file) => file.id === currentFileID);
+
+    console.log(currentFileID)
+    console.log(userFiles)
+    console.log(file)
+    const payload = { filename: file.filename, code, lang };
+    const savedFile = await axios.put(`${filesRoute}${currentFileID}`, payload);
+    console.log(savedFile);
+  };
+
   return (
     <div className="App">
       <UserContext.Provider
@@ -106,6 +118,7 @@ function App() {
           user,
           loading,
           error,
+          saveUserFile,
           logout,
           signInWithGoogle,
           dbUser,
@@ -117,7 +130,7 @@ function App() {
           currentFileID,
           setCurrentFileID,
           code,
-          setCode
+          setCode,
         }}
       >
         <Routes>
@@ -126,6 +139,7 @@ function App() {
             element={
               <>
                 <Header />
+                <Button onClick={saveUserFile}> save</Button>
                 <ToolBar
                   isLoading={isLoading}
                   runCode={runCode}
@@ -173,10 +187,7 @@ function App() {
                       )}
                       {!isLoading && (
                         <Box>
-                          <OutputViewer
-                            output={JSON.stringify(userFiles, null, 2)}
-                            theme={theme}
-                          />
+                          <OutputViewer output={output} theme={theme} />
                         </Box>
                       )}
                     </Box>
