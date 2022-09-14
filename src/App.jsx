@@ -27,7 +27,7 @@ import { UserContext } from "./contexts/UserContext";
 import { signInWithGoogle, auth, logout } from "./firebase.js";
 import { useAuthState } from "react-firebase-hooks/auth";
 
-import {filesRoute} from './apiRoutes'
+import { filesRoute } from "./apiRoutes";
 
 function App() {
   const [code, setCode] = useState("print('hi mom!')");
@@ -83,6 +83,11 @@ function App() {
     return () => clearTimeout(toastTimeout);
   }, [code]);
 
+  useEffect(() => {
+    if (dbUser) {
+      refreshUserFiles();
+    }
+  }, [dbUser]);
   const runCode = async () => {
     setIsLoading(true);
     const payload = { code, lang };
@@ -103,12 +108,21 @@ function App() {
   const saveUserFile = async () => {
     const file = userFiles.find((file) => file.id === currentFileID);
 
-    console.log(currentFileID)
-    console.log(userFiles)
-    console.log(file)
+    console.log(currentFileID);
+    console.log(userFiles);
+    console.log(file);
     const payload = { filename: file.filename, code, lang };
     const savedFile = await axios.put(`${filesRoute}${currentFileID}`, payload);
     console.log(savedFile);
+    refreshUserFiles()
+  };
+  const refreshUserFiles = async () => {
+    console.log("refreshing");
+    if (!dbUser) return;
+    console.log(dbUser);
+    const { data } = await axios.get(`${filesRoute}${dbUser.id}`);
+    console.log(data);
+    setUserFiles(data);
   };
 
   return (
@@ -127,6 +141,7 @@ function App() {
           setUserPresentInDb,
           userFiles,
           setUserFiles,
+          refreshUserFiles,
           currentFileID,
           setCurrentFileID,
           code,
