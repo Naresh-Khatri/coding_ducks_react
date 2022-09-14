@@ -7,13 +7,7 @@ import {
   HStack,
   Spacer,
   Text,
-  Drawer,
-  DrawerBody,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
   useDisclosure,
-  VStack,
 } from "@chakra-ui/react";
 
 import { HamburgerIcon } from "@chakra-ui/icons";
