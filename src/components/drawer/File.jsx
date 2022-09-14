@@ -1,3 +1,5 @@
+import { useRef, useState, useContext } from "react";
+import axios from "axios";
 import {
   Box,
   Button,
@@ -26,14 +28,13 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { faPython, faJs, faJava } from "@fortawesome/free-brands-svg-icons";
-import { useRef, useState } from "react";
 
-import axios from "axios";
 import { filesRoute } from "../../apiRoutes";
+import { UserContext } from "../../contexts/UserContext";
 
-export default function File({ isActive, file, refreshUserFiles }) {
+export default function File({ isActive, file}) {
   const langIcons = {
-    py: faPython,
+    python: faPython,
     js: faJs,
     java: faJava,
     default: faCode,
@@ -47,13 +48,14 @@ export default function File({ isActive, file, refreshUserFiles }) {
     default: "#000000",
   };
 
-  const { fileName, lang, id, content, userId } = file;
+  const { fileName, lang, id, code, userId } = file;
+  const {refreshUserFiles} = useContext(UserContext);
   const cancelRef = useRef();
   const [isDeletingFile, setIsDeletingFile] = useState(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // const { onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
+  const { onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   // const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toast = useToast();
 
@@ -100,7 +102,7 @@ export default function File({ isActive, file, refreshUserFiles }) {
         userId: userId,
         fileName: fileName + " (copy)",
         lang: lang,
-        content: content,
+        code: code,
       };
       const newFile = await axios.post(filesRoute, payload);
       console.log(newFile);
