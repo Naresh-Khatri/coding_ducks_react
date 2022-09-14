@@ -23,8 +23,8 @@ import axios from "axios";
 import { filesRoute } from "../apiRoutes";
 import { UserContext } from "../contexts/UserContext";
 
-function NewFilePopup({ refreshUserFiles }) {
-  const { dbUser } = useContext(UserContext);
+function NewFilePopup() {
+  const { dbUser, refreshUserFiles } = useContext(UserContext);
   const { isOpen, onClose, onToggle } = useDisclosure();
   const toast = useToast();
 
@@ -40,7 +40,6 @@ function NewFilePopup({ refreshUserFiles }) {
         userId: dbUser.id,
         fileName: fileName,
         lang: lang,
-        content: "",
       };
       const newFile = await axios.post(filesRoute, payload);
       setIsLoading(false);
