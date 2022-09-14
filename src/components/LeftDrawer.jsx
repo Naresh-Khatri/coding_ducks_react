@@ -58,24 +58,18 @@ export default function LeftDrawer({ isOpen, onClose }) {
     setCurrentFileID(id);
     console.log(userFiles)
     const file = userFiles.find((file) => file.id === id);
+    console.log(file)
     setCode(file.code);
     // showInProgress();
-    // onClose();
+    onClose();
   };
   const showInProgress = () => {
     onDialogOpen();
   };
 
   const createNewFile = () => {};
-  const refreshUserFiles = async () => {
-    if (!dbUser) return;
-    console.log(dbUser);
-    const { data } = await axios.get(`${filesRoute}${dbUser.id}`);
-    console.log(data);
-    setUserFiles(data);
-  };
+  
   useEffect(() => {
-    refreshUserFiles();
   }, [dbUser]);
 
   return (
@@ -91,7 +85,7 @@ export default function LeftDrawer({ isOpen, onClose }) {
           <DrawerHeader borderBottomWidth="1px">OKay masterr</DrawerHeader>
           <DrawerBody>
             <HStack>
-              <NewFilePopup refreshUserFiles={refreshUserFiles} />
+              <NewFilePopup />
             </HStack>
             <VStack spacing={1} mt={10} align="stretch">
               {!dbUser || userFiles.length == 0 ? (
@@ -113,7 +107,6 @@ export default function LeftDrawer({ isOpen, onClose }) {
                     <File
                       isActive={file.id === currentFileID}
                       file={file}
-                      refreshUserFiles={refreshUserFiles}
                     />
                   </Box>
                 ))
