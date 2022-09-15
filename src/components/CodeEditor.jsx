@@ -15,7 +15,7 @@ import { python } from "@codemirror/lang-python";
 import { cpp } from "@codemirror/lang-cpp";
 import { java } from "@codemirror/lang-java";
 
-import "./CodeEditor.css";
+// import "./CodeEditor.css";
 
 export default function CodeEditor({ code, setCode, lang, theme, runCode }) {
   const supportedLangs = {
@@ -37,6 +37,27 @@ export default function CodeEditor({ code, setCode, lang, theme, runCode }) {
     xcodeDark: xcodeDark,
     xcodeLight: xcodeLight,
   };
+  const saveCode = ()=>{
+    console.log('saving file')
+  }
+  const shortcuts = [
+    {
+      key: "Ctrl-Enter",
+      preventDefault: true,
+      run: () => {
+        runCode();
+        return true;
+      },
+    },
+    {
+      key: "Shift-Ctrl-S",
+      preventDefault: true,
+      run:()=>{
+        saveCode();
+        return true
+      }
+    }
+  ]
   const save = (e) => {
     console.log("save", e);
   };
@@ -50,16 +71,7 @@ export default function CodeEditor({ code, setCode, lang, theme, runCode }) {
         theme={supportedThemes[theme]}
         // extensions={[loadLanguage('cpp')]}
         extensions={[
-          keymap.of([
-            {
-              key: "Ctrl-Enter",
-              preventDefault: true,
-              run: () => {
-                runCode();
-                return true;
-              },
-            },
-          ]),
+          keymap.of(shortcuts),
           supportedLangs[lang],
         ]}
         onChange={(value) => {
