@@ -4,11 +4,16 @@ import { Button, Box, HStack, Select, Spacer } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
 
-export default function ToolBar({ isLoading, runCode, setLang, setTheme }) {
+export default function ToolBar({ isLoading, runCode, lang, setLang, theme, setTheme, saveUserFile, saveBtnLoading }) {
   return (
     <Box bg="gray.800">
       <HStack p={2} justifyContent="end">
         <Box></Box>
+        <Button
+        isLoading={saveBtnLoading}
+        loadingText="Syncing..."
+         onClick={saveUserFile}> save</Button>
+
         <Button
           loadingText="Running..."
           isLoading={isLoading}
@@ -23,23 +28,24 @@ export default function ToolBar({ isLoading, runCode, setLang, setTheme }) {
           bg="purple.500"
           color="white"
           maxW={40}
+          value = {lang}
           onChange={(e) => {
             setLang(e.target.value);
           }}
         >
-          <option style={{ color: "black" }} value="python">
+          <option style={{ color: "black" }} value="python" >
             Python
           </option>
-          <option style={{ color: "black" }} value="js">
+          <option style={{ color: "black" }} value="js" >
             Javascript
           </option>
-          <option style={{ color: "black" }} value="cpp">
+          <option style={{ color: "black" }} value="cpp" >
             C++
           </option>
-          <option style={{ color: "black" }} value="c">
+          <option style={{ color: "black" }} value="c" >
             C
           </option>
-          <option style={{ color: "black" }} value="java">
+          <option style={{ color: "black" }} value="java" >
             Java
           </option>
         </Select>
