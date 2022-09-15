@@ -4,6 +4,7 @@ import {
   Button,
   HStack,
   Skeleton,
+  Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
@@ -38,11 +39,8 @@ export default function LeftDrawer({ isOpen, onClose }) {
   const {
     dbUser,
     userFiles,
-    setUserFiles,
     currentFileID,
-    setCurrentFileID,
-    code,
-    setCode,
+    changeCurrentFile,
   } = useContext(UserContext);
 
   // const [currentFile, setCurrentFileID] = useState("2");
@@ -55,11 +53,9 @@ export default function LeftDrawer({ isOpen, onClose }) {
   const cancelRef = useRef();
 
   const handleFileClick = (id) => {
-    setCurrentFileID(id);
-    console.log(userFiles)
-    const file = userFiles.find((file) => file.id === id);
-    console.log(file)
-    setCode(file.code);
+   
+    changeCurrentFile(id)
+   
     // showInProgress();
     onClose();
   };
@@ -79,6 +75,7 @@ export default function LeftDrawer({ isOpen, onClose }) {
         onClose={onClose}
         isOpen={isOpen}
         blockScrollOnMount={false}
+        
       >
         <DrawerOverlay />
         <DrawerContent>
@@ -88,7 +85,8 @@ export default function LeftDrawer({ isOpen, onClose }) {
               <NewFilePopup />
             </HStack>
             <VStack spacing={1} mt={10} align="stretch">
-              {!dbUser || userFiles.length == 0 ? (
+              {!dbUser ? (
+                userFiles.length != 0 ? (<Text bg='blue' color='black'>No file found</Text>):(
                 <VStack>
                   <Skeleton w="100%" height="20px" />
                   <Skeleton w="100%" height="20px" />
@@ -96,7 +94,7 @@ export default function LeftDrawer({ isOpen, onClose }) {
                   <Skeleton w="100%" height="20px" />
                   <Skeleton w="100%" height="20px" />
                 </VStack>
-              ) : (
+              )) : (
                 userFiles.map((file) => (
                   <Box
                     borderRadius={10}
