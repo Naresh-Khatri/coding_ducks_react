@@ -29,6 +29,10 @@ import { useAuthState } from "react-firebase-hooks/auth";
 
 import { filesRoute } from "./apiRoutes";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faRotate} from '@fortawesome/free-solid-svg-icons'
+import { icon } from "@fortawesome/fontawesome-svg-core";
+
 function App() {
   const [code, setCode] = useState("print('hi mom!')");
   const [lang, setLang] = useState("python");
@@ -46,6 +50,7 @@ function App() {
   const cancelRef = useRef();
   const [dbUser, setDbUser] = useState(null);
   const [userFiles, setUserFiles] = useState([]);
+  const [saveBtnLoading, setSaveBtnLoading] = useState(false)
   const [userPresentInDb, setUserPresentInDb] = useState(false);
   const [currentFileID, setCurrentFileID] = useState(null);
 
@@ -88,6 +93,13 @@ function App() {
       refreshUserFiles();
     }
   }, [dbUser]);
+  const changeCurrentFile =(id) =>{
+    setCurrentFileID(id);
+    console.log(userFiles)
+    const file = userFiles.find((file) => file.id === id);
+    setLang(file.lang)
+    setCode(file.code);
+  }
   const runCode = async () => {
     setIsLoading(true);
     const payload = { code, lang };
@@ -97,24 +109,35 @@ function App() {
         payload
       );
       setIsLoading(false);
-      setOutput(res.data.stdout || res.data.error);
+      setOutput(res.data);
     } catch (error) {
       setIsLoading(false);
       console.log(error);
-      setOutput("Somehings fishy :thinking_face:");
+      setOutput({error: "Somehings fishy :thinking_face:"});
     }
   };
 
   const saveUserFile = async () => {
-    const file = userFiles.find((file) => file.id === currentFileID);
-
-    console.log(currentFileID);
-    console.log(userFiles);
-    console.log(file);
-    const payload = { filename: file.filename, code, lang };
-    const savedFile = await axios.put(`${filesRoute}${currentFileID}`, payload);
-    console.log(savedFile);
-    refreshUserFiles()
+    setSaveBtnLoading(true)
+    try {
+      const file = userFiles.find((file) => file.id === currentFileID);
+      const payload = { filename: file.filename, code, lang };
+      const savedFile = await axios.put(`${filesRoute}${currentFileID}`, payload);
+      setSaveBtnLoading(false)
+      toast({
+        position: "top-right",
+        icon:<FontAwesomeIcon icon={faRotate} />,
+        title: "Sync complete!",
+        description: "In cloud.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      refreshUserFiles()
+    } catch (err) {
+      setSaveBtnLoading(false)
+      console.log(err)
+    }
   };
   const refreshUserFiles = async () => {
     console.log("refreshing");
@@ -142,6 +165,7 @@ function App() {
           userFiles,
           setUserFiles,
           refreshUserFiles,
+          changeCurrentFile,
           currentFileID,
           setCurrentFileID,
           code,
@@ -154,10 +178,13 @@ function App() {
             element={
               <>
                 <Header />
-                <Button onClick={saveUserFile}> save</Button>
                 <ToolBar
                   isLoading={isLoading}
                   runCode={runCode}
+                  lang={lang}
+                  theme={theme}
+                  saveUserFile={saveUserFile}
+                  saveBtnLoading = {saveBtnLoading}
                   setLang={setLang}
                   setTheme={setTheme}
                 />
