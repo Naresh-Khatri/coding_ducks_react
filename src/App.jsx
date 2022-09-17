@@ -30,12 +30,11 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { filesRoute } from "./apiRoutes";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faRotate} from '@fortawesome/free-solid-svg-icons'
-import { icon } from "@fortawesome/fontawesome-svg-core";
+import { faRotate } from "@fortawesome/free-solid-svg-icons";
 
 function App() {
   const [code, setCode] = useState("print('hi mom!')");
-  const [lang, setLang] = useState("python");
+  const [lang, setLang] = useState("py");
   const [theme, setTheme] = useState("dracula");
   const [output, setOutput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -50,9 +49,15 @@ function App() {
   const cancelRef = useRef();
   const [dbUser, setDbUser] = useState(null);
   const [userFiles, setUserFiles] = useState([]);
-  const [saveBtnLoading, setSaveBtnLoading] = useState(false)
+  const [saveBtnLoading, setSaveBtnLoading] = useState(false);
   const [userPresentInDb, setUserPresentInDb] = useState(false);
-  const [currentFileID, setCurrentFileID] = useState(null);
+  //TODO: kaam chalau hai ye
+  const [currentFile, setCurrentFile] = useState({
+    id: null,
+    fileName: "Untitled",
+    code: "",
+    lang: "py",
+  });
 
   const [debounce, setDebounce] = useState(null);
   const toast = useToast();
@@ -93,13 +98,13 @@ function App() {
       refreshUserFiles();
     }
   }, [dbUser]);
-  const changeCurrentFile =(id) =>{
-    setCurrentFileID(id);
-    console.log(userFiles)
-    const file = userFiles.find((file) => file.id === id);
-    setLang(file.lang)
+  const changeCurrentFile = (newFile) => {
+    setCurrentFile(newFile);
+    const file = userFiles.find((file) => file.id === newFile.id);
+    setLang(file.lang);
     setCode(file.code);
-  }
+    console.log(file);
+  };
   const runCode = async () => {
     setIsLoading(true);
     const payload = { code, lang };
@@ -113,30 +118,33 @@ function App() {
     } catch (error) {
       setIsLoading(false);
       console.log(error);
-      setOutput({error: "Somehings fishy :thinking_face:"});
+      setOutput({ error: "Somehings fishy :thinking_face:" });
     }
   };
 
   const saveUserFile = async () => {
-    setSaveBtnLoading(true)
+    setSaveBtnLoading(true);
     try {
-      const file = userFiles.find((file) => file.id === currentFileID);
+      const file = userFiles.find((file) => file.id === currentFile.id);
       const payload = { filename: file.filename, code, lang };
-      const savedFile = await axios.put(`${filesRoute}${currentFileID}`, payload);
-      setSaveBtnLoading(false)
+      const savedFile = await axios.put(
+        `${filesRoute}${currentFile.id}`,
+        payload
+      );
+      setSaveBtnLoading(false);
       toast({
         position: "top-right",
-        icon:<FontAwesomeIcon icon={faRotate} />,
+        icon: <FontAwesomeIcon icon={faRotate} />,
         title: "Sync complete!",
         description: "In cloud.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-      refreshUserFiles()
+      refreshUserFiles();
     } catch (err) {
-      setSaveBtnLoading(false)
-      console.log(err)
+      setSaveBtnLoading(false);
+      console.log(err);
     }
   };
   const refreshUserFiles = async () => {
@@ -144,8 +152,8 @@ function App() {
     if (!dbUser) return;
     console.log(dbUser);
     const { data } = await axios.get(`${filesRoute}${dbUser.id}`);
-    console.log(data);
     setUserFiles(data);
+    console.log(data);
   };
 
   return (
@@ -166,8 +174,8 @@ function App() {
           setUserFiles,
           refreshUserFiles,
           changeCurrentFile,
-          currentFileID,
-          setCurrentFileID,
+          currentFile,
+          setCurrentFile,
           code,
           setCode,
         }}
@@ -184,7 +192,7 @@ function App() {
                   lang={lang}
                   theme={theme}
                   saveUserFile={saveUserFile}
-                  saveBtnLoading = {saveBtnLoading}
+                  saveBtnLoading={saveBtnLoading}
                   setLang={setLang}
                   setTheme={setTheme}
                 />
