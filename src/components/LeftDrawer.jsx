@@ -4,7 +4,6 @@ import {
   Button,
   HStack,
   Skeleton,
-  Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
@@ -39,7 +38,7 @@ export default function LeftDrawer({ isOpen, onClose }) {
   const {
     dbUser,
     userFiles,
-    currentFileID,
+    currentFile,
     changeCurrentFile,
   } = useContext(UserContext);
 
@@ -53,11 +52,9 @@ export default function LeftDrawer({ isOpen, onClose }) {
   const cancelRef = useRef();
 
   const handleFileClick = (id) => {
-   
     changeCurrentFile(id)
-   
     // showInProgress();
-    onClose();
+    // onClose();
   };
   const showInProgress = () => {
     onDialogOpen();
@@ -75,7 +72,6 @@ export default function LeftDrawer({ isOpen, onClose }) {
         onClose={onClose}
         isOpen={isOpen}
         blockScrollOnMount={false}
-        
       >
         <DrawerOverlay />
         <DrawerContent>
@@ -85,8 +81,7 @@ export default function LeftDrawer({ isOpen, onClose }) {
               <NewFilePopup />
             </HStack>
             <VStack spacing={1} mt={10} align="stretch">
-              {!dbUser ? (
-                userFiles.length != 0 ? (<Text bg='blue' color='black'>No file found</Text>):(
+              {!dbUser || userFiles.length == 0 ? (
                 <VStack>
                   <Skeleton w="100%" height="20px" />
                   <Skeleton w="100%" height="20px" />
@@ -94,16 +89,16 @@ export default function LeftDrawer({ isOpen, onClose }) {
                   <Skeleton w="100%" height="20px" />
                   <Skeleton w="100%" height="20px" />
                 </VStack>
-              )) : (
+              ) : (
                 userFiles.map((file) => (
                   <Box
                     borderRadius={10}
                     _hover={{ bg: "purple.100", cursor: "pointer" }}
                     key={file.id}
-                    onClick={() => handleFileClick(file.id)}
+                    onClick={() => handleFileClick(file)}
                   >
                     <File
-                      isActive={file.id === currentFileID}
+                      isActive={file.id === currentFile.id}
                       file={file}
                     />
                   </Box>
