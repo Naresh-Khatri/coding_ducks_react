@@ -19,7 +19,7 @@ import { java } from "@codemirror/lang-java";
 
 export default function CodeEditor({ code, setCode, lang, theme, runCode }) {
   const supportedLangs = {
-    python: python(),
+    py: python(),
     js: javascript(),
     cpp: cpp(),
     c: cpp(),
