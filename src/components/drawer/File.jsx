@@ -26,6 +26,8 @@ import {
   faEllipsisV,
   faCode,
   faTrash,
+  faPenToSquare,
+  faClone,
 } from "@fortawesome/free-solid-svg-icons";
 import { faPython, faJs, faJava } from "@fortawesome/free-brands-svg-icons";
 
@@ -34,7 +36,7 @@ import { UserContext } from "../../contexts/UserContext";
 
 export default function File({ isActive, file}) {
   const langIcons = {
-    python: faPython,
+    py: faPython,
     js: faJs,
     java: faJava,
     default: faCode,
@@ -160,19 +162,23 @@ export default function File({ isActive, file}) {
                   />
                 </MenuButton>
                 <MenuList>
-                  <MenuItem disabled _hover={{ outline: "none" }}>
-                    <Text ml={5}>Rename</Text>
+                  <MenuItem disabled _hover={{ outline: "none" }}
+                    icon={<FontAwesomeIcon icon={faPenToSquare} />}
+                    >
+                    <Text >Rename</Text>
                   </MenuItem>
                   <MenuItem
                     _hover={{ outline: "none" }}
                     onClick={handleDuplicateClicked}
+                    icon={<FontAwesomeIcon icon={faClone} />}
                   >
-                    <Text ml={5}>Duplicate</Text>
+                    <Text>Duplicate</Text>
                   </MenuItem>
                   <MenuDivider />
                   <MenuItem
                     bg="red.400"
                     _hover={{ outline: "none" }}
+                    textColor="white"
                     onClick={handleDeleteClicked}
                     icon={<FontAwesomeIcon icon={faTrash} />}
                     closeOnSelect={false}
