@@ -1,4 +1,4 @@
-import React, { initialFocusRef, useState, useContext } from "react";
+import React, { initialFocusRef, useState, useContext, useRef } from "react";
 import {
   Box,
   Button,
@@ -33,6 +33,7 @@ function NewFilePopup() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const initialFocusRef = useRef();
   const createFile = async () => {
     try {
       setIsLoading(true);
@@ -45,7 +46,7 @@ function NewFilePopup() {
       setIsLoading(false);
       console.log(newFile);
       refreshUserFiles();
-      onClose()
+      onClose();
       toast({
         title: "Success!",
         description: "File created!",
@@ -56,7 +57,7 @@ function NewFilePopup() {
       });
     } catch (err) {
       console.log(err);
-      onClose()
+      onClose();
       refreshUserFiles();
       setIsLoading(false);
       toast({
@@ -100,6 +101,9 @@ function NewFilePopup() {
               ref={initialFocusRef}
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") createFile();
+              }}
             />
             <Select mt={2} onChange={(e) => setLang(e.target.value)}>
               <option value="py">Python</option>
