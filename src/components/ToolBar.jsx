@@ -13,10 +13,17 @@ import {
 } from "@chakra-ui/react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay, faEdit, faSave } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPlay,
+  faEdit,
+  faSave,
+  faCancel,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { useContext, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
+import { filesRoute } from "../apiRoutes";
+import axios from "axios";
 
 export default function ToolBar({
   isLoading,
@@ -28,11 +35,25 @@ export default function ToolBar({
   saveUserFile,
   saveBtnLoading,
 }) {
-  const { currentFile } = useContext(UserContext);
+  const { currentFile, refreshUserFiles } = useContext(UserContext);
   const [isRenaming, setIsRenaming] = useState(false);
   const [newFileName, setNewFileName] = useState(currentFile.fileName);
-  const handleRenameClick = () => {
-    console.log("rename");
+  const handleRenameClick = async () => {
+    try {
+      const res = await axios.patch(
+        `${filesRoute}/${currentFile.id}`,
+        { fileName: newFileName },
+        { withCredentials: true }
+      );
+      console.log(res);
+      refreshUserFiles();
+      setIsRenaming(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const handleCancelRenameClick = () => {
+    setNewFileName(currentFile.fileName);
     setIsRenaming(false);
   };
   return (
@@ -47,6 +68,11 @@ export default function ToolBar({
                 onChange={(e) => {
                   setNewFileName(e.target.value);
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleRenameClick();
+                  }
+                }}
               />
               <InputRightElement width="4.5rem">
                 <IconButton
@@ -55,7 +81,16 @@ export default function ToolBar({
                   icon={<FontAwesomeIcon icon={faSave} />}
                   size="sm"
                   onClick={handleRenameClick}
-                >Save</IconButton>
+                >
+                  Save
+                </IconButton>
+                <IconButton
+                  bg="transparent"
+                  color="white"
+                  icon={<FontAwesomeIcon icon={faCancel} />}
+                  size="sm"
+                  onClick={handleCancelRenameClick}
+                ></IconButton>
               </InputRightElement>
             </InputGroup>
           ) : (
@@ -65,7 +100,10 @@ export default function ToolBar({
                 bg="transparent"
                 _hover={{ bg: "transparent" }}
                 _focus={{ bg: "transparent" }}
-                onClick={() => setIsRenaming(true)}
+                onClick={() => {
+                  setIsRenaming(true);
+                  setNewFileName(currentFile.fileName);
+                }}
                 icon={<FontAwesomeIcon icon={faEdit} />}
               />
             </HStack>
