@@ -32,6 +32,8 @@ import { filesRoute } from "./apiRoutes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
 
+import { runCodeRoute } from "./apiRoutes";
+
 function App() {
   const [code, setCode] = useState("print('hi mom!')");
   const [lang, setLang] = useState("py");
@@ -52,12 +54,7 @@ function App() {
   const [saveBtnLoading, setSaveBtnLoading] = useState(false);
   const [userPresentInDb, setUserPresentInDb] = useState(false);
   //TODO: kaam chalau hai ye
-  const [currentFile, setCurrentFile] = useState({
-    id: null,
-    fileName: "Untitled",
-    code: "",
-    lang: "py",
-  });
+  const [currentFile, setCurrentFile] = useState({});
 
   const [debounce, setDebounce] = useState(null);
   const toast = useToast();
@@ -98,21 +95,33 @@ function App() {
       refreshUserFiles();
     }
   }, [dbUser]);
+
+  useEffect(() => {
+    //only select the first file when currentFile is empty
+    if (userFiles.length > 0 && currentFile == {})
+      changeCurrentFile(userFiles[0]);
+  }, [userFiles]);
+
   const changeCurrentFile = (newFile) => {
-    setCurrentFile(newFile);
-    const file = userFiles.find((file) => file.id === newFile.id);
-    setLang(file.lang);
-    setCode(file.code);
-    console.log(file);
+    try {
+      //find file to set as current file
+      setCurrentFile(newFile);
+      setLang(newFile.lang);
+      setCode(newFile.code);
+    } catch (err) {
+      //if file not found, set first file as current file
+      setCurrentFile(userFiles[0]);
+      setLang(userFiles[0].lang);
+      setCode(userFiles[0].code);
+    }
   };
+
   const runCode = async () => {
     setIsLoading(true);
     const payload = { code, lang };
     try {
-      const res = await axios.post(
-        "https://coding_ducks.panipuri.tech/playground",
-        payload
-      );
+      const res = await axios.post(runCodeRoute, payload);
+      console.log(res.data)
       setIsLoading(false);
       setOutput(res.data);
     } catch (error) {
@@ -127,7 +136,7 @@ function App() {
     try {
       const file = userFiles.find((file) => file.id === currentFile.id);
       const payload = { filename: file.filename, code, lang };
-      const savedFile = await axios.put(
+      const savedFile = await axios.patch(
         `${filesRoute}${currentFile.id}`,
         payload
       );
@@ -148,14 +157,16 @@ function App() {
     }
   };
   const refreshUserFiles = async () => {
-    console.log("refreshing");
     if (!dbUser) return;
-    console.log(dbUser);
     const { data } = await axios.get(`${filesRoute}${dbUser.id}`);
     setUserFiles(data);
-    console.log(data);
+    //select current file if it exists
+    // console.log(Object.keys(currentFile).length);
+    // console.log(data[0]);
+    if (Object.keys(currentFile).length > 0)
+      changeCurrentFile(data.find((file) => file.id === currentFile.id));
+    else changeCurrentFile(data[0]);
   };
-
   return (
     <div className="App">
       <UserContext.Provider
