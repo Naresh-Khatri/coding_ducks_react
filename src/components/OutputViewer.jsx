@@ -8,11 +8,10 @@ import { duotoneDark, duotoneLight } from "@uiw/codemirror-theme-duotone";
 import { xcodeDark, xcodeLight } from "@uiw/codemirror-theme-xcode";
 
 import "./CodeEditor.css";
-import { useEffect } from "react";
 
 export default function CodeEditor({ output, theme }) {
-  const outputText = output.stdout || output.error
-  const hasError = output.hasOwnProperty('error')
+  const outputText = output.stdout || output.stderr || output.code;
+  const hasError = output.hasOwnProperty("error");
   const supportedThemes = {
     dracula: dracula,
     atomone: atomone,
@@ -25,19 +24,19 @@ export default function CodeEditor({ output, theme }) {
     xcodeDark: xcodeDark,
     xcodeLight: xcodeLight,
   };
-  // TODO: Turn text color red if error 
+  // TODO: Turn text color red if error
   // useEffect(()=>{
   //   const container = document.querySelectorAll('.cm-editor')
   //     console.log(container.length)
   //   if(container.length == 2 && hasError){
-  //     container[1].style.color = 'red' 
+  //     container[1].style.color = 'red'
   //     console.log(container)
-  //   } 
+  //   }
   //   // container.style.color = 'red'
   // }, [output])
   return (
     <>
-    {/* {hasError? 'yess error':'no error'} */}
+      {/* {hasError? 'yess error':'no error'} */}
       <CodeMirror
         basicSetup={{
           lineNumbers: false,
@@ -52,8 +51,6 @@ export default function CodeEditor({ output, theme }) {
         value={outputText}
         height="90vh"
         theme={supportedThemes[theme]}
-        // style={{color:'red', colorScheme:'red'}}
-        className='okay'
       />
     </>
   );
